@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     /* Check if arguments are provided */
     if (argc != 3) {
         syslog(LOG_ERR, "Error: <WRITE_FILE> and <WRITE_STR> arguments are required\n");
-        ret = -1;
+        ret = 1;
         goto exit;
     }
 
@@ -31,14 +31,14 @@ int main(int argc, char *argv[]) {
     fp = fopen(write_file, "w");
     if (fp == NULL) {
         syslog(LOG_ERR, "Failed to open file '%s' for writing", write_file);
-        ret = -1;
+        ret = 1;
         goto exit;
     }
 
     /* Write string to file */
     if (fprintf(fp, "%s\n", write_str) < 0) {
         syslog(LOG_ERR, "Failed to write to file '%s'", write_file);
-        ret = -1;
+        ret = 1;
         goto exit_file;
     }
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 exit_file:
     if (fclose(fp) != 0) {
         syslog(LOG_ERR, "Failed to close file '%s'", write_file);
-        ret = -1;
+        ret = 1;
     }
 exit:
     closelog();
