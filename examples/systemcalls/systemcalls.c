@@ -67,7 +67,7 @@ bool do_exec(int count, ...)
 
     pid_t pid = fork();
     if (pid == 0) { // Child
-        execv(command[0], command)
+        execv(command[0], command);
         return false;
     } else if (pid > 0) { // Parent
         if (waitpid(pid, NULL, 0))
@@ -120,16 +120,16 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
         if (dup2(fd, 1) < 0)
             return false;
 
-        close(fd)
-        execv(command[0], command)
+        close(fd);
+        execv(command[0], command);
         return false;
     } else if (pid > 0) { // Parent
         if (waitpid(pid, NULL, 0)) {
-            close(fd)
+            close(fd);
             return false;
         }
     } else {
-        close(fd)
+        close(fd);
         return false;
     }
 
