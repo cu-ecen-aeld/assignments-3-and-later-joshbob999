@@ -20,7 +20,7 @@ bool do_system(const char *cmd)
     int ret;
 
     ret = system(cmd);
-    if (ret = -1)
+    if (ret == -1)
         return false;
 
     return true;
@@ -66,7 +66,7 @@ bool do_exec(int count, ...)
 */
 
     fork();
-    execv(command[0], command[1]);
+    execv(command[0], (char *const*) command[1]);
     wait();
 
     va_end(args);
