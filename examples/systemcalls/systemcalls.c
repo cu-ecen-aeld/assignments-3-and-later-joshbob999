@@ -65,9 +65,16 @@ bool do_exec(int count, ...)
  *
 */
 
-    fork();
-    execv(command[0], (char *const*) command[1]);
-    wait();
+    pid_t pid = fork();
+    if (pid == 0) { // Child
+        execv(command[0], command)
+        return false;
+    } else if (pid > 0) { // Parent
+        if (waitpid(pid, NULL, 0))
+            return false;
+    } else {
+        return false;
+    }
 
     va_end(args);
 
@@ -105,17 +112,25 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 
     int kidpid;
     int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
-    if (fd < 0) { perror("open"); abort(); }
-    switch (kidpid = fork()) {
-    case -1: perror("fork"); abort();
-    case 0:
-        if (dup2(fd, 1) < 0) { perror("dup2"); abort(); }
-        close(fd);
-        execv(command[0], (char *const*)  command[1]); perror("execv"); abort();
-    default:
-        close(fd);
-        /* do whatever the parent wants to do. */
-        wait();
+    if (fd < 0)
+        return false;
+
+    pid_t pid = fork();
+    if (pid == 0) { // Child
+        if (dup2(fd, 1) < 0)
+            return false;
+
+        close(fd)
+        execv(command[0], command)
+        return false;
+    } else if (pid > 0) { // Parent
+        if (waitpid(pid, NULL, 0)) {
+            close(fd)
+            return false;
+        }
+    } else {
+        close(fd)
+        return false;
     }
 
     va_end(args);
