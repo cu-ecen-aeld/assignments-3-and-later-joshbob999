@@ -65,12 +65,16 @@ bool do_exec(int count, ...)
  *
 */
 
+    int status;
+
     pid_t pid = fork();
     if (pid == 0) { // Child
         execv(command[0], command);
-        return false;
+        abort();
     } else if (pid > 0) { // Parent
-        if (waitpid(pid, NULL, 0))
+        if (waitpid(pid, &status, 0) == -1)
+            return false;
+        if (!(WIFEXITED(status) && WEXITSTATUS(status) == 0))
             return false;
     } else {
         return false;
@@ -110,24 +114,24 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *
 */
 
-    int kidpid;
+    int status;
+
     int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
     if (fd < 0)
-        return false;
+        abort();
 
     pid_t pid = fork();
     if (pid == 0) { // Child
         if (dup2(fd, 1) < 0)
-            return false;
-
+            abort();
         close(fd);
         execv(command[0], command);
-        return false;
+        abort();
     } else if (pid > 0) { // Parent
-        if (waitpid(pid, NULL, 0)) {
-            close(fd);
+        if (waitpid(pid, &status, 0) == -1)
             return false;
-        }
+        if (!(WIFEXITED(status) && WEXITSTATUS(status) == 0))
+            return false;
     } else {
         close(fd);
         return false;
